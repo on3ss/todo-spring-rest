@@ -3,6 +3,7 @@ package com.on3ss.todo_app.modules.auth.service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.on3ss.todo_app.infrastructure.exceptions.BusinessException;
 import com.on3ss.todo_app.modules.auth.domain.User;
 import com.on3ss.todo_app.modules.auth.repository.UserRepository;
 
@@ -16,8 +17,9 @@ public class AuthService {
 
     public User register(String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new BusinessException("User with email " + email + " already exists.");
         }
+
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));

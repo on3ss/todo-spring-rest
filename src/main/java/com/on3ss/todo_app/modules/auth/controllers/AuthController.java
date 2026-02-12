@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.on3ss.todo_app.modules.auth.dto.RegisterRequest;
 import com.on3ss.todo_app.modules.auth.service.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request.getEmail(), request.getPassword());
         return ResponseEntity.ok("User registered successfully!");
     }
