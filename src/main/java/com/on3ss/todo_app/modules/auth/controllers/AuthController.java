@@ -35,6 +35,6 @@ public class AuthController {
         response.put("token", token);
         response.put("type", "Bearer");
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(response.toString());
     }
 }
