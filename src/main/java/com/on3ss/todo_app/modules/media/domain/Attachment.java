@@ -1,5 +1,6 @@
 package com.on3ss.todo_app.modules.media.domain;
 
+import com.on3ss.todo_app.common.domain.BaseEntity;
 import com.on3ss.todo_app.modules.todo.domain.Todo;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Attachment {
+public class Attachment extends BaseEntity {
     public enum ProcessingStatus {
         PENDING,
         PROCESSING,

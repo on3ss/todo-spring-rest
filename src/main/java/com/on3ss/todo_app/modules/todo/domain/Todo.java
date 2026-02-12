@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.on3ss.todo_app.common.domain.BaseEntity;
 import com.on3ss.todo_app.modules.auth.domain.User;
 import com.on3ss.todo_app.modules.media.domain.Attachment;
 
@@ -21,7 +22,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "todos")
-public class Todo {
+public class Todo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;
@@ -32,8 +33,8 @@ public class Todo {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean completed;
+    @Column(nullable = false)
+    private boolean completed = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
