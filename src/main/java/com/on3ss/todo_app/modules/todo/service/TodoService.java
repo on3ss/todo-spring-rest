@@ -5,10 +5,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.on3ss.todo_app.infrastructure.exceptions.BusinessException;
 import com.on3ss.todo_app.modules.auth.domain.User;
 import com.on3ss.todo_app.modules.auth.repository.UserRepository;
+import com.on3ss.todo_app.modules.media.domain.Attachment;
 import com.on3ss.todo_app.modules.todo.domain.Todo;
 import com.on3ss.todo_app.modules.todo.dto.TodoRequest;
 import com.on3ss.todo_app.modules.todo.dto.TodoResponse;
@@ -67,13 +69,29 @@ public class TodoService {
                 .description(todo.getDescription())
                 .completed(todo.isCompleted())
                 .attachments(todo.getAttachments().stream()
-                        .map(att -> TodoResponse.AttachmentResponse.builder()
-                                .id(att.getId())
-                                .fileName(att.getFileName())
-                                .status(att.getStatus().name())
-                                .thumbnailPath(att.getThumbnailPath())
-                                .build())
-                        .collect(Collectors.toList()))
+                        .map(this::mapToAttachmentResponse)
+                        .toList())
                 .build();
+    }
+
+    private TodoResponse.AttachmentResponse mapToAttachmentResponse(Attachment attachment) {
+        return TodoResponse.AttachmentResponse.builder()
+                .id(attachment.getId())
+                .fileName(attachment.getFileName())
+                // Formatting the paths to URLs here
+                .url(formatToUrl(attachment.getFilePath()))
+                .thumbnailUrl(formatToUrl(attachment.getThumbnailPath()))
+                .build();
+    }
+
+    private String formatToUrl(String path) {
+        if (path == null)
+            return null;
+        String fileName = new java.io.File(path).getName();
+
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/files/")
+                .path(fileName)
+                .toUriString();
     }
 }

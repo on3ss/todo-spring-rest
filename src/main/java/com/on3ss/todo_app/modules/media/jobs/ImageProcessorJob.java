@@ -3,6 +3,8 @@ package com.on3ss.todo_app.modules.media.jobs;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.on3ss.todo_app.modules.media.domain.Attachment;
 import com.on3ss.todo_app.modules.media.domain.Attachment.ProcessingStatus;
@@ -20,6 +22,7 @@ public class ImageProcessorJob {
 
     @Async("imageProcessorExecutor")
     @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     public void handleImageProcessing(ImageUploadedEvent event) {
         Attachment attachment = attachmentRepository.findById(event.attachmentId())

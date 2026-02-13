@@ -20,7 +20,7 @@ public class TodoResponse {
     public static class AttachmentResponse {
         private UUID id;
         private String fileName;
-        private String status;
-        private String thumbnailPath;
+        private String url;
+        private String thumbnailUrl;
     }
 }
