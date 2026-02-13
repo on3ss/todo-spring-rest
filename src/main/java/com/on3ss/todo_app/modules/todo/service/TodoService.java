@@ -48,5 +48,8 @@ public class TodoService {
         todo.setCompleted(completed);
         return todoRepository.save(todo);
     }
-    
+
+    public List<Todo> findAll() {
+        return todoRepository.findAll();
+    }
 }
