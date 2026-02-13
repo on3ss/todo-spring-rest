@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.on3ss.todo_app.modules.todo.domain.Todo;
 import com.on3ss.todo_app.modules.todo.dto.TodoRequest;
+import com.on3ss.todo_app.modules.todo.dto.TodoResponse;
 import com.on3ss.todo_app.modules.todo.dto.TodoStatusRequest;
 import com.on3ss.todo_app.modules.todo.service.TodoService;
 
@@ -36,7 +37,7 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Todo>> getMyTodos(Principal principal){
+    public ResponseEntity<List<TodoResponse>> getMyTodos(Principal principal){
         return ResponseEntity.ok(todoService.getMyTodos(principal.getName()));
     }
 

@@ -2,6 +2,7 @@ package com.on3ss.todo_app.modules.todo.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import com.on3ss.todo_app.modules.auth.domain.User;
 import com.on3ss.todo_app.modules.auth.repository.UserRepository;
 import com.on3ss.todo_app.modules.todo.domain.Todo;
 import com.on3ss.todo_app.modules.todo.dto.TodoRequest;
+import com.on3ss.todo_app.modules.todo.dto.TodoResponse;
 import com.on3ss.todo_app.modules.todo.repository.TodoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -33,8 +35,13 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    public List<Todo> getMyTodos(String userEmail) {
-        return todoRepository.findByOwnerEmail(userEmail);
+    public List<TodoResponse> getMyTodos(String userEmail) {
+        List<Todo> todos = todoRepository.findByOwnerEmail(userEmail);
+        List<TodoResponse> response = todos.stream()
+                .map(this::getTodoAsDto)
+                .collect(Collectors.toList());
+
+        return response;
     }
 
     public Todo updateStatus(UUID id, boolean completed, String userEmail) {
@@ -51,5 +58,22 @@ public class TodoService {
 
     public List<Todo> findAll() {
         return todoRepository.findAll();
+    }
+
+    public TodoResponse getTodoAsDto(Todo todo) {
+        return TodoResponse.builder()
+                .uuid(todo.getUuid())
+                .title(todo.getTitle())
+                .description(todo.getDescription())
+                .completed(todo.isCompleted())
+                .attachments(todo.getAttachments().stream()
+                        .map(att -> TodoResponse.AttachmentResponse.builder()
+                                .id(att.getId())
+                                .fileName(att.getFileName())
+                                .status(att.getStatus().name())
+                                .thumbnailPath(att.getThumbnailPath())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

@@ -1,5 +1,8 @@
 package com.on3ss.todo_app.modules.media.domain;
 
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.on3ss.todo_app.common.domain.BaseEntity;
 import com.on3ss.todo_app.modules.todo.domain.Todo;
 import jakarta.persistence.*;
@@ -21,8 +24,8 @@ public class Attachment extends BaseEntity {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String fileName;
@@ -41,5 +44,6 @@ public class Attachment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
+    @JsonIgnore
     private Todo todo;
 }
