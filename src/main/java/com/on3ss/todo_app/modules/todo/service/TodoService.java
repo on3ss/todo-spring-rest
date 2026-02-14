@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,7 +28,10 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
 
-    @CacheEvict(value = "todos", key = "#userEmail")
+    @Caching(evict = {
+            @CacheEvict(value = "todos", key = "#userEmail"),
+            @CacheEvict(value = "allTodos", allEntries = true)
+    })
     @Transactional
     public Todo createTodo(TodoRequest request, String userEmail) {
         User owner = userRepository.findByEmail(userEmail)
@@ -52,6 +56,11 @@ public class TodoService {
         return response;
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "todos", key = "#userEmail"),
+        @CacheEvict(value = "allTodos", allEntries = true)
+    })
+    @Transactional
     public Todo updateStatus(UUID id, boolean completed, String userEmail) {
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Todo not found"));
@@ -64,6 +73,7 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
+    @Cacheable(value = "allTodos")
     public List<Todo> findAll() {
         return todoRepository.findAll();
     }
