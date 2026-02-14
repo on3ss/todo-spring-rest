@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.on3ss.todo_app.infrastructure.exceptions.BusinessException;
@@ -24,6 +27,8 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
 
+    @CacheEvict(value = "todos", key = "#userEmail")
+    @Transactional
     public Todo createTodo(TodoRequest request, String userEmail) {
         User owner = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -37,6 +42,7 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
+    @Cacheable(value = "todos", key = "#userEmail")
     public List<TodoResponse> getMyTodos(String userEmail) {
         List<Todo> todos = todoRepository.findByOwnerEmail(userEmail);
         List<TodoResponse> response = todos.stream()
