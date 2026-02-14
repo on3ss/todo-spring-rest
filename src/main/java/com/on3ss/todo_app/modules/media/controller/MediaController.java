@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.UUID;
 
 @RestController
@@ -19,19 +20,25 @@ public class MediaController {
     private final MediaService mediaService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadMultiple(
+    public ResponseEntity<HashMap<String, String>> uploadMultiple(
             @PathVariable UUID todoUUid,
             @RequestParam MultipartFile[] files,
             Principal principal) throws IOException {
 
         // Check if files were actually sent
         if (files == null || files.length == 0) {
-            return ResponseEntity.badRequest().body("No files selected for upload.");
+            HashMap<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "No files selected for upload.");
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         mediaService.handleMultipleUploads(todoUUid, files, principal.getName());
 
+        HashMap<String, String> response = new HashMap<>();
+        response.put("message", String.format("Successfully queued %d images for processing.", files.length));
+        response.put("todoId", todoUUid.toString());
+
         return ResponseEntity.accepted()
-                .body(String.format("Successfully queued %d images for processing.", files.length));
+                .body(response);
     }
 }
