@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,6 +29,9 @@ public class MediaService {
     private final TodoRepository todoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/webp");
+    private static final long MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
     @PostConstruct
     public void init() {
         try {
@@ -39,7 +43,6 @@ public class MediaService {
 
     @Transactional
     public void handleMultipleUploads(UUID todoUUid, MultipartFile[] files, String email) throws IOException {
-        // 1. Ownership check (once per request)
         Todo todo = todoRepository.findById(todoUUid)
                 .orElseThrow(() -> new BusinessException("Todo not found"));
 
@@ -47,7 +50,10 @@ public class MediaService {
             throw new BusinessException("Unauthorized: You do not own this Todo.");
         }
 
-        // 2. Loop through each file
+        for (MultipartFile file : files) {
+            validateFile(file);
+        }
+
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
                 // We reuse the single upload logic here
@@ -77,5 +83,22 @@ public class MediaService {
                 attachment.getId(),
                 attachment.getFilePath(),
                 todo.getUuid()));
+    }
+
+    public void validateFile(MultipartFile file) {
+        // 1. Check if empty
+        if (file.isEmpty()) {
+            throw new BusinessException("Cannot upload an empty file");
+        }
+
+        // 2. Check Size
+        if (file.getSize() > MAX_SIZE) {
+            throw new BusinessException("File " + file.getOriginalFilename() + " exceeds 5MB limit");
+        }
+
+        // 3. Check Content Type
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            throw new BusinessException("Only JPEG, PNG, and WebP are allowed");
+        }
     }
 }
